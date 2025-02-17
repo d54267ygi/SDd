@@ -119,6 +119,11 @@ public:
 	}
 };
 
+class MenuInterface
+{
+	
+};
+
 class OuterTeletypeInterface
 {
 	
