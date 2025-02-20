@@ -1,8 +1,13 @@
 #include <iostream>
+#include <string>
 #include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <python3.11/Python.h>
+
+#include "menu_interface.cpp"
+#include "outer_teletype_interface.cpp"
+#include "inner_teletype_interface.cpp"
 
 class Main
 {
@@ -10,10 +15,18 @@ public:
 	int run = 1;
 	const int STANDART_WINDOW_WIDTH = 640;
 	const int STANDART_WINDOW_HEIGHT = 480;
-	SDL_DisplayMode display_mode;
-	SDL_Event event;
+	int window_width = STANDART_WINDOW_WIDTH;
+	int window_height = STANDART_WINDOW_HEIGHT;
+
 	SDL_Surface* window_surface = NULL;
 	SDL_Window* window = NULL;
+	SDL_Renderer* renderer = NULL;
+	SDL_DisplayMode display_mode;
+	SDL_Event event_handler;
+
+	MenuInterface menu_interface();
+	OuterTeletypeInterface outer_teletype_interface();
+	InnerTeletypeInterface inner_teletype_interface();
 
 	int
 	start()
@@ -22,7 +35,10 @@ public:
 			return 1;
 
 		if (load_resources() == 1)
+		{
+			quit();
 			return 1;
+		}
 
 		if (mainloop() == 1)
 		{
@@ -43,12 +59,9 @@ public:
 		{
 			process_events();
 
-			window_surface = SDL_GetWindowSurface(window);
+			SDL_RenderClear(renderer);
 
-			SDL_FillRect(window_surface, NULL,
-					     SDL_MapRGB(window_surface->format, 255, 0, 0));
-
-			SDL_UpdateWindowSurface(window);
+			SDL_RenderPresent(renderer);
 			usleep(5 * 1000);
 		}
 
@@ -81,6 +94,17 @@ public:
 			return 1;
 		}
 
+		renderer = SDL_CreateRenderer(window, -1, 
+									  SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+		if (renderer == NULL)
+		{
+			std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+			return 1;
+		}
+
+		SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
+
 		return 0;
 	}
 
@@ -99,10 +123,19 @@ public:
 	int
 	process_events()
 	{
-		while (SDL_PollEvent(&event) != 0) 
+		while (SDL_PollEvent(&event_handler) != 0) 
 		{
-			if (event.type == SDL_QUIT) 
+			if (event_handler.type == SDL_QUIT) 
 				run = 0;
+
+			if (event_handler.type == SDL_WINDOWEVENT)
+			{
+				if (event_handler.window.event == SDL_WINDOWEVENT_RESIZED)
+				{
+					window_width = event_handler.window.data1;
+					window_height = event_handler.window.data2;
+				}
+			}
 		}
 
 		return 0;
@@ -111,27 +144,17 @@ public:
 	int
 	quit()
 	{
+		int success = 0;
+		
 		if (unload_resources() == 1)
-			return 1;
+			success = 1;
+
+		SDL_DestroyRenderer(renderer);
 		SDL_DestroyWindow(window);
 		SDL_Quit();
-		return 0;
+		
+		return success;
 	}
-};
-
-class MenuInterface
-{
-	
-};
-
-class OuterTeletypeInterface
-{
-	
-};
-
-class InnerTeletypeInterface
-{
-	
 };
 
 int

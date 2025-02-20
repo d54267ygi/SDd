@@ -1,0 +1,8 @@
+class MenuInterface
+{
+public:
+	MenuInterface()
+	{
+		
+	}
+};
