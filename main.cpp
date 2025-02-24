@@ -81,7 +81,7 @@ public:
 
 		if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
 		{
-			std::cout << "Can't init image: " << IMG_GetError() << std::endl;
+			std::cout << "IMG_Init Error: " << IMG_GetError() << std::endl;
 			return 1;
 		}
 
