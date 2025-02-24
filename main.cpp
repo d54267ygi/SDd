@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <python3.11/Python.h>
 
+#include "global_interface.cpp"
 #include "menu_interface.cpp"
 #include "outer_teletype_interface.cpp"
 #include "inner_teletype_interface.cpp"
@@ -24,9 +25,10 @@ public:
 	SDL_DisplayMode display_mode;
 	SDL_Event event_handler;
 
-	MenuInterface menu_interface();
-	OuterTeletypeInterface outer_teletype_interface();
-	InnerTeletypeInterface inner_teletype_interface();
+	GlobalInterface global_interface;
+	MenuInterface menu_interface;
+	OuterTeletypeInterface outer_teletype_interface;
+	InnerTeletypeInterface inner_teletype_interface;
 
 	int
 	start()
